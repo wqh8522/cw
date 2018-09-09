@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.cw.dao.TCwBxdDao">
+    
+	<sql id="tCwBxdColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.name AS "name",
+		a.money AS "money",
+		a.detail AS "detail",
+		a.bx_time AS "bxTime",
+		a.zm_cl AS "zmCl"
+	</sql>
+	
+	<sql id="tCwBxdJoins">
+	</sql>
+	
+    
+	<select id="get" resultType="TCwBxd" >
+		SELECT 
+			<include refid="tCwBxdColumns"/>
+		FROM t_cw_bxd a
+		<include refid="tCwBxdJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="TCwBxd" >
+		SELECT 
+			<include refid="tCwBxdColumns"/>
+		FROM t_cw_bxd a
+		<include refid="tCwBxdJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="name != null and name != ''">
+				AND a.name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+			<if test="bxTime != null and bxTime != ''">
+				AND a.bx_time = #{bxTime}
+			</if>
+			<if test="bxStartDate != null and bxStartDate != '' and bxEndDate != null and bxEndDate != ''">
+				AND a.bx_time between #{bxStartDate} and  #{bxEndDate}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="TCwBxd" >
+		SELECT 
+			<include refid="tCwBxdColumns"/>
+		FROM t_cw_bxd a
+		<include refid="tCwBxdJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO t_cw_bxd(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			name,
+			money,
+			detail,
+			bx_time,
+			zm_cl
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{name},
+			#{money},
+			#{detail},
+			#{bxTime},
+			#{zmCl}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE t_cw_bxd SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			name = #{name},
+			money = #{money},
+			detail = #{detail},
+			bx_time = #{bxTime},
+			zm_cl = #{zmCl}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM t_cw_bxd
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE t_cw_bxd SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="TCwBxd" statementType="STATEMENT">
+		select * FROM t_cw_bxd  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>
